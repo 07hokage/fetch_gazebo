@@ -33,7 +33,19 @@
     <remap from="cmd_vel" to="/cmd_vel"/>
   </node>
 
-  
+  <!-- Joystick node to read joystick inputs -->
+  <node pkg="joy" type="joy_node" name="joy_node" output="screen">
+    <param name="dev" type="string" value="/dev/input/js0"/>
+  </node>
+  <!-- Teleop twist joy node to convert joystick inputs to cmd_vel -->
+  <node pkg="teleop_twist_joy" type="teleop_node" name="teleop_twist_joy" output="screen">
+    <param name="axis_linear" value="1"/>
+    <param name="axis_angular" value="0"/>
+    <param name="scale_linear" value="0.5"/>
+    <param name="scale_angular" value="1.0"/>
+    <param name="enable_button" value="0"/>
+  </node>
+
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
     <remap from="scan" to="/base_scan"/>
    </node>
