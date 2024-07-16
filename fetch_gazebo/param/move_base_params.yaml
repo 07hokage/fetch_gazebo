@@ -16,8 +16,11 @@ oscillation_distance: 0.2
 
 # local planner - default is trajectory rollout
 base_local_planner: "dwa_local_planner/DWAPlannerROS"
+# base_local_planner: "teb_local_planner/TebLocalPlannerROS"
+
 
 base_global_planner: "navfn/NavfnROS" #alternatives: global_planner/GlobalPlanner, carrot_planner/CarrotPlanner
+# base_global_planner: "SBPLLatticePlanner"
 
 
 #We plan to integrate recovery behaviors for turtlebot but currently those belong to gopher and still have to be adapted.
@@ -31,8 +34,8 @@ recovery_behaviors:
     #type: 'clear_costmap_recovery/ClearCostmapRecovery'
   #- name: 'aggressive_reset1'
     #type: 'clear_costmap_recovery/ClearCostmapRecovery'
-  # - name: 'clearing_rotation1'
-  #   type: 'rotate_recovery/RotateRecovery'
+  - name: 'clearing_rotation1'
+    type: 'rotate_recovery/RotateRecovery'
   #- name: 'super_conservative_reset2'
     #type: 'clear_costmap_recovery/ClearCostmapRecovery'
   #- name: 'conservative_reset2'
@@ -43,7 +46,7 @@ recovery_behaviors:
     #type: 'rotate_recovery/RotateRecovery'
 
 super_conservative_reset1:
-  reset_distance: 10.0
+  reset_distance: 0.3
 #conservative_reset1:
   #reset_distance: 1.5
 #aggressive_reset1:

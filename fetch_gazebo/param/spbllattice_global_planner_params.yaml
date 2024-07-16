@@ -1,0 +1,6 @@
+SBPLLatticePlanner:
+  allocated_time: 10.0
+  initial_epsilon: 3.0
+  cost_multiplier: 1.0
+  environment_type: "XYThetaLattice"
+  forward_search: false
