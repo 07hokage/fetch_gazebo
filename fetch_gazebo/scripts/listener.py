@@ -169,7 +169,8 @@ class ImageListener:
             with open('initial_map.yaml', 'w') as yaml_file:
                 yaml.dump(map_metadata, yaml_file, default_flow_style=False)
             self.map_info_saved=1
-        self.map_img = map_image[1200:2800,1200:2800]
+        #self.map_img = map_image[1200:2800,1200:2800]  ## savinf full map takes only 28KB
+        self.map_img = map_image
 
     def get_data_to_save(self):
 
