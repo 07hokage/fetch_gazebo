@@ -27,7 +27,7 @@ def process_image(color_file, color_folder, poses_folder, map_folder, map_resolu
         print(map_image.shape)
         # Load the corresponding pose file
         with np.load(pose_path) as data:
-            robot_pose = data['RT_robot']
+            robot_pose = data['RT_base']
         robot_position = robot_pose[0:2, 3]
 
         map_pixel_x = int((robot_position[0] - map_origin[0]) / map_resolution)
