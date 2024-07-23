@@ -70,7 +70,9 @@ def main(data_folder):
     color_folder = os.path.join(data_folder, "color")
     poses_folder = os.path.join(data_folder, "pose")
     map_folder = os.path.join(data_folder, "map")
-    map_resolution = 0.05000000074505806 
+    # map_resolution = 0.05000000074505806
+    # TODO: read resolution from the .yaml file 
+    map_resolution = 0.1
     map_origin = (-100.0, -100.0)
     color_files = sorted([f for f in os.listdir(color_folder) if f.endswith(".png")])
 
