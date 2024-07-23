@@ -18,8 +18,7 @@ def process_image(color_file, color_folder, poses_folder, map_folder, map_resolu
     window_size = 20
     resize_window = 30
     cv2.namedWindow("Map Image", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Map Image", 1600, 1600)
-    #TODO: check map resolution and crop size, so as to cover the entire floor
+    cv2.resizeWindow("Map Image", 4000, 4000)
     if os.path.exists(pose_path):
         # Read the color image
         color_image = cv2.imread(color_path)
@@ -31,8 +30,8 @@ def process_image(color_file, color_folder, poses_folder, map_folder, map_resolu
             robot_pose = data['RT_robot']
         robot_position = robot_pose[0:2, 3]
 
-        map_pixel_x = int((robot_position[0] - map_origin[0]) / map_resolution) - 1200
-        map_pixel_y = int((robot_position[1] - map_origin[1]) / map_resolution) - 1200
+        map_pixel_x = int((robot_position[0] - map_origin[0]) / map_resolution)
+        map_pixel_y = int((robot_position[1] - map_origin[1]) / map_resolution)
         print(map_pixel_x, map_pixel_y)
         print(map_image[:, :, 0].shape)
 
