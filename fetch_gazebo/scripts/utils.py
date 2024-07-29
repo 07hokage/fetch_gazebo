@@ -1,4 +1,15 @@
 import numpy as np
+import os
+import cv2
+import yaml
+from numpy.linalg import norm
+
+intrinsics = [[574.0527954101562, 0.0, 319.5],[0.0, 574.0527954101562, 239.5], [0.0, 0.0, 1.0]]
+# intrinsics = [[554.254691191187, 0.0, 320.5],[0.0, 554.254691191187, 240.5], [0.0, 0.0, 1.0]]
+fx = intrinsics[0][0]
+fy = intrinsics[1][1]
+px = intrinsics[0][2]
+py = intrinsics[1][2]
 
 def compute_xyz(depth_img, fx, fy, px, py, height, width):
     indices = np.indices((height, width), dtype=np.float32).transpose(1, 2, 0)
@@ -7,3 +18,65 @@ def compute_xyz(depth_img, fx, fy, px, py, height, width):
     y_e = (indices[..., 0] - py) * z_e / fy
     xyz_img = np.stack([x_e, y_e, z_e], axis=-1)  # Shape: [H x W x 3]
     return xyz_img
+
+def pose_to_map_pixel(map_metadata, pose):
+    pose_x = pose[0]
+    pose_y = pose[1]
+
+    map_pixel_x = int((pose_x - map_metadata["origin"][0]) / map_metadata["resolution"])
+    map_pixel_y = int((pose_y - map_metadata["origin"][1]) / map_metadata["resolution"])
+
+    return [map_pixel_x, map_pixel_y]
+
+def read_map_image(map_file_path):
+    assert os.path.exists(map_file_path)
+    if map_file_path.endswith(".pgm"):
+        map_image = cv2.imread(map_file_path)
+    else:
+        map_image = cv2.imread(map_file_path)
+    
+    return map_image
+
+def read_map_metadata(metadata_file_path):
+    assert os.path.exists(metadata_file_path)
+    assert metadata_file_path.endswith(".yaml")
+    with open(metadata_file_path, "r") as file:
+        metadata = yaml.safe_load(file)
+    file.close()
+    return metadata
+
+def display_map_image(map_image, write=False):
+    width, height, _ = map_image.shape
+    cv2.namedWindow("Map Image", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Map Image", width, height)
+    if write:
+        cv2.imwrite("map_image.png", map_image)
+    cv2.imshow("Map Image", map_image)
+    cv2.waitKey(0)
+
+def is_nearby(pose1, pose2, threshold=0.5):
+    print(pose1, pose2)
+    if norm(pose1 - pose2) < threshold:
+        return True
+
+def normalize_depth_image(depth_array, max_depth):
+    depth_image = (max_depth - depth_array) / max_depth
+    depth_image = depth_image * 255
+    return depth_image.astype(np.uint8)
+
+def denormalize_depth_image(depth_image, max_depth):
+    depth_array = max_depth * (1 - (depth_image / 255))
+    return depth_array.astype(np.float32)
+
+
+def pose_in_map_frame(RT_camera, RT_base, depth_array, segment=None):
+    xyz_array = compute_xyz(depth_array, fx,fy,px,py, depth_array.shape[0], depth_array.shape[1])
+    xyz_array = xyz_array.reshape((-1,3))
+
+    xyz_base = np.dot(RT_camera[:3,:3],xyz_array.T).T
+    xyz_base +=RT_camera[:3,3]
+
+    xyz_map = np.dot(RT_base[:3,:3],xyz_base.T).T
+    xyz_map +=RT_base[:3,3]
+
+    return np.mean(xyz_map, axis=1)
