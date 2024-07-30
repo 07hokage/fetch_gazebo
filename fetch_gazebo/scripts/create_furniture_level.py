@@ -34,32 +34,34 @@ class CreateLevelOne:
             os.path.join(self.depth_dir, f"{data_id}_depth.png"), cv2.IMREAD_UNCHANGED
         ).astype(np.float32)
         depth_array = denormalize_depth_image(depth_image, max_depth=6)
-        return pose_in_map_frame(cam_pose, robot_pose, depth_array, segment=None)
+        # segment = cv2.imread(
+        #     os.path.join(self.segments_dir, f"{data_id}/mask_0.png"),0)
+        segment = None
+        return robot_pose, pose_in_map_frame(cam_pose, robot_pose, depth_array, segment=segment)
 
     def create_level(self):
         self.segment_folders = os.listdir(self.segments_dir)
         self.segment_folders.sort()
-        print(self.segment_folders)
         for dir in self.segment_folders:
             if self.segment_folders.index(dir) == 0:
-                self.root = Node(dir, pose=self.get_pose(dir))
+                robot_pose, pose = self.get_pose(dir)
+                self.root = Node(dir, pose=pose, robot_pose=robot_pose)
                 prev_node = self.root
             else:
-                pose = self.get_pose(dir)
+                robot_pose, pose = self.get_pose(dir)
                 if is_nearby(prev_node.pose, pose, threshold=0.5):
                     continue
                 else:
-                    next_node = Node(dir, parent=prev_node, pose=self.get_pose(dir))
+                    next_node = Node(dir, parent=prev_node, pose=pose, robot_pose=robot_pose)
                     prev_node = next_node
 
     def visualize_simple_tree(self, save_img=True):
-        print(RenderTree(self.root))
+        # print(RenderTree(self.root))
         if save_img:
             UniqueDotExporter(self.root).to_picture("root.png")
 
     def visualize_tree_on_map(self, map_file_path="", window_size=5):
         map_image = read_map_image(map_file_path)
-        print(map_image.shape)
         metadata_file_path = map_file_path.split(".png")[0] + ".yaml"
         map_metadata = read_map_metadata(metadata_file_path)
         for _, _, node in RenderTree(self.root):
@@ -70,7 +72,13 @@ class CreateLevelOne:
                 x - window_size // 2 : x + window_size // 2,
                 :,
             ] = [255, 0, 0]
-        display_map_image(map_image)
+            x_robot, y_robot = pose_to_map_pixel(map_metadata, [node.robot_pose[0,3], node.robot_pose[1,3]])
+            map_image[
+                y_robot - window_size // 2 : y_robot + window_size // 2,
+                x_robot - window_size // 2 : x_robot + window_size // 2,
+                :,
+            ] = [0, 255, 0]
+            display_map_image(map_image)
 
     def save_tree(self):
         UniqueDotExporter(self.root).to_picture("root.png")
@@ -78,5 +86,5 @@ class CreateLevelOne:
 
 if __name__ == "__main__":
     level = CreateLevelOne(sys.argv[1])
-    level.visualize_tree_on_map(map_file_path="/home/ash/Downloads/2024-07-23_00-22-59/map/000110_map.png")
+    level.visualize_tree_on_map(map_file_path="/home/ash/irvl/test/installations/fetch_related/fetch_ws/src/fetch_gazebo/fetch_gazebo/scripts/2024-07-29_23-21-38/map/000023_map.png")
     level.save_tree()
