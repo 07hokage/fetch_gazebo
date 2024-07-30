@@ -3,6 +3,7 @@ import os
 import cv2
 import yaml
 from numpy.linalg import norm
+import scipy.ndimage
 
 intrinsics = [[574.0527954101562, 0.0, 319.5],[0.0, 574.0527954101562, 239.5], [0.0, 0.0, 1.0]]
 # intrinsics = [[554.254691191187, 0.0, 320.5],[0.0, 554.254691191187, 240.5], [0.0, 0.0, 1.0]]
@@ -55,7 +56,6 @@ def display_map_image(map_image, write=False):
     cv2.waitKey(0)
 
 def is_nearby(pose1, pose2, threshold=0.5):
-    print(pose1, pose2)
     if norm(pose1 - pose2) < threshold:
         return True
 
@@ -70,6 +70,9 @@ def denormalize_depth_image(depth_image, max_depth):
 
 
 def pose_in_map_frame(RT_camera, RT_base, depth_array, segment=None):
+    # if segment is not None:
+    #     depth_array = depth_array * segment
+    
     xyz_array = compute_xyz(depth_array, fx,fy,px,py, depth_array.shape[0], depth_array.shape[1])
     xyz_array = xyz_array.reshape((-1,3))
 
@@ -78,5 +81,8 @@ def pose_in_map_frame(RT_camera, RT_base, depth_array, segment=None):
 
     xyz_map = np.dot(RT_base[:3,:3],xyz_base.T).T
     xyz_map +=RT_base[:3,3]
+    
+    mean_pose = np.mean(xyz_map, axis=0)
+    print(f"mean pose ; {mean_pose}, robot pose ; {RT_base[0:2,3]} \n")
 
-    return np.mean(xyz_map, axis=1)
+    return mean_pose
