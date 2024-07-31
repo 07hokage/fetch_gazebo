@@ -70,11 +70,14 @@ def denormalize_depth_image(depth_image, max_depth):
 
 
 def pose_in_map_frame(RT_camera, RT_base, depth_array, segment=None):
-    # if segment is not None:
-    #     depth_array = depth_array * segment
+    if segment is not None:
+        depth_array = depth_array * segment
     
     xyz_array = compute_xyz(depth_array, fx,fy,px,py, depth_array.shape[0], depth_array.shape[1])
     xyz_array = xyz_array.reshape((-1,3))
+
+    mask = ~(np.all(xyz_array == [0.0, 0.0, 0.0], axis=1))
+    xyz_array = xyz_array[mask]
 
     xyz_base = np.dot(RT_camera[:3,:3],xyz_array.T).T
     xyz_base +=RT_camera[:3,3]
@@ -86,3 +89,8 @@ def pose_in_map_frame(RT_camera, RT_base, depth_array, segment=None):
     # print(f"mean pose ; {mean_pose}, robot pose ; {RT_base[0:2,3]} \n")
 
     return mean_pose.tolist()
+
+if __name__=="__main__":
+    a=compute_xyz(np.array([[0,0,0],[0,0,0],[0,0,0]]), fx,fy,px,py, 3,3)
+    a=a.reshape((-1,3))
+    print(a)
