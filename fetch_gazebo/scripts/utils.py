@@ -56,7 +56,7 @@ def display_map_image(map_image, write=False):
     cv2.waitKey(0)
 
 def is_nearby(pose1, pose2, threshold=0.5):
-    if norm(pose1 - pose2) < threshold:
+    if norm((pose1[0] - pose2[0], pose1[1] - pose2[1])) < threshold:
         return True
 
 def normalize_depth_image(depth_array, max_depth):
@@ -83,6 +83,6 @@ def pose_in_map_frame(RT_camera, RT_base, depth_array, segment=None):
     xyz_map +=RT_base[:3,3]
     
     mean_pose = np.mean(xyz_map, axis=0)
-    print(f"mean pose ; {mean_pose}, robot pose ; {RT_base[0:2,3]} \n")
+    # print(f"mean pose ; {mean_pose}, robot pose ; {RT_base[0:2,3]} \n")
 
-    return mean_pose
+    return mean_pose.tolist()
