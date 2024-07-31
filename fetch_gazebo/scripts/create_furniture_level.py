@@ -82,7 +82,42 @@ class CreateLevelOne:
 
     def save_tree(self):
         UniqueDotExporter(self.root).to_picture("root.png")
+    # def save_tree_yaml(self, filepath=None):
+    #     level_dict = DictExporter().export(self.root)
+    #     print(level_dict)
+    #     # print(yaml.dump(level_dict, default_flow_style=False))
+    #     with open(filepath, 'w') as file:
+    #         yaml.dump(level_dict, file)
 
+    def save_tree_json(self, filepath=None):
+        exporter = JsonExporter(indent=2)
+        tree = exporter.export(self.root)
+        with open(filepath, "w") as jsonfile:
+            json.dump(tree, jsonfile)
+
+    def load_tree_json(self, filepath=None):
+        assert filepath is not None
+        with open(filepath, "r") as jsonfile:
+            tree = json.load(jsonfile)
+        tree = json.loads(tree)
+        return tree
+
+
+    # def load_tree_yaml(self, filepath=None):
+    #     with open(filepath, "r") as file:
+    #         tree_data = yaml.safe_load(file)
+    #     # print(tree_data.keys())
+    #     return tree_data
+    
+    def print_names(self, tree):
+        print(tree["name"])
+        try:
+            self.print_names(tree['children'][0])
+        except KeyError:
+            pass
+
+        
+            
 
 if __name__ == "__main__":
     level = CreateLevelOne(sys.argv[1])
