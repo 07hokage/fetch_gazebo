@@ -57,10 +57,16 @@ def main(data_folder):
         # # _, depth_image, _, _, _, _, _, _ = listener_.get_data_to_save()
         # time.sleep(20)
         depth_image = depth_
+        # depth_image[depth_image is np.nan] = 0.0
         print(f"depth_iameg shape {depth_image.shape}")
         xyz_array = compute_xyz(depth_image, fx,fy,px,py,480,640)
         print(f"xya array sahpe {xyz_array.shape}")
         xyz_array = xyz_array.reshape((-1,3))
+        # xyz_array = np.nan_to_num(xyz_array, nan=0)
+        mask = ~(np.all(xyz_array == [0.0, 0.0, 0.0], axis=1))
+        print("mask", mask)
+        xyz_array = xyz_array[mask]
+        print(xyz_array.shape)
         # pose_file = depth_path.split("_depth.png")[0] + "_pose.npz"
         # with np.load(os.path.join(pose_folder,pose_file)) as data:
         #     RT_camera = data["RT_camera"]
@@ -70,6 +76,9 @@ def main(data_folder):
 
         # xyz_world = np.dot(RT_base[:3,:3],xyz_base.T).T
         # xyz_world +=RT_base[:3,3]
+        
+        
+
 
         pc_header.stamp = rospy.Time.now()
         pc_header.frame_id = "base_link"
