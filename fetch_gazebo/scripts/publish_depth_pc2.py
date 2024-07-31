@@ -38,12 +38,13 @@ def main(data_folder):
         print(f"depth image {depth_path}")
         pose_file = depth_path.split("_depth.png")[0] + "_pose.npz"
         depth_image = cv2.imread(os.path.join(depth_folder,depth_path),0)
-        depth_image = 6-(6*(depth_image/255))
+        depth_image = 20-(20*(depth_image/255))
+        print(depth_image)
         with np.load(os.path.join(pose_folder,pose_file)) as data:
             RT_camera = data["RT_camera"]
             RT_robot = data["RT_base"]
             # depth_image = data["depth"]
-        print(depth_image)
+        # print(depth_image)
         # depth_image /= 100
         color_file =  depth_path.split("_depth.png")[0] + "_color.png"
         color_image = cv2.imread(os.path.join(color_folder, color_file))
@@ -59,7 +60,14 @@ def main(data_folder):
         xyz_array = compute_xyz(depth_image, fx,fy,px,py,480,640)
         print(f"xya array sahpe {xyz_array.shape}")
         xyz_array = xyz_array.reshape((-1,3))
-        
+        print(f"mean before {np.mean(xyz_array, axis=0)}")
+        mask = ~(np.all(xyz_array == [0.0, 0.0, 0.0], axis=1))
+        # print("mask", mask)
+        xyz_array = xyz_array[mask]
+        print(f"mean after {np.mean(xyz_array, axis=0)}")
+        # print(xyz_array.shape)
+        # cv2.imshow("depthimage", depth_image)
+        # cv2.waitKey(0)
         
 
         print(RT_camera)
@@ -73,14 +81,18 @@ def main(data_folder):
 
         xyz_world = np.dot(RT_robot[:3,:3],xyz_base.T).T
         xyz_world +=RT_robot[:3,3]
+        print(xyz_world)
+        # xyz_world = np.nan_to_num(xyz_world, nan=0.0)
+
+        
 
         pc_header.stamp = rospy.Time.now()
         pc_header.frame_id = "map"
         pc_message = pc2.create_cloud_xyz32(pc_header, xyz_world)
         pc_pub.publish(pc_message)
         print("publishged")
-        cv2.imshow("rgb image", color_image)
-        cv2.waitKey(3)
+        # cv2.imshow("rgb image", color_image)
+        # cv2.waitKey(3)
         # time.sleep(1)
         # rospy.sleep(0.5)
 
