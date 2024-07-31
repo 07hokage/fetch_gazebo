@@ -38,8 +38,8 @@ class CreateLevelOne:
             os.path.join(self.depth_dir, f"{data_id}_depth.png"), cv2.IMREAD_UNCHANGED
         ).astype(np.float32)
         depth_array = denormalize_depth_image(depth_image, max_depth=6)
-        # segment = cv2.imread(
-        #     os.path.join(self.segments_dir, f"{data_id}/mask_0.png"),0)
+        segment = cv2.imread(
+            os.path.join(self.segments_dir, f"{data_id}/mask_0.png"),0)
         segment = None
         return robot_pose.tolist(), pose_in_map_frame(
             cam_pose, robot_pose, depth_array, segment=segment
@@ -73,7 +73,7 @@ class CreateLevelOne:
     def generate_random_color(self):
         return [random.randint(0, 255) for _ in range(3)]
 
-    def visualize_tree_on_map(self, map_file_path="", window_size=16):
+    def visualize_tree_on_map(self, map_file_path="", window_size=5):
         map_image = read_map_image(map_file_path)
         metadata_file_path = map_file_path.split(".png")[0] + ".yaml"
         map_metadata = read_map_metadata(metadata_file_path)
@@ -99,10 +99,12 @@ class CreateLevelOne:
             #     x_robot - window_size // 2 : x_robot + window_size // 2,
             #     :,
             # ] = [0, 255, 0]
+            # display_map_image(map_image)
             cv2.putText(legend, f'{node.name}: {color}', (10, legend_position), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1, cv2.LINE_AA)
             legend_position += 20
         display_map_image(legend)
         display_map_image(map_image)
+        
 
     def save_tree(self):
         UniqueDotExporter(self.root).to_picture("root.png")
@@ -148,7 +150,7 @@ class CreateLevelOne:
 if __name__ == "__main__":
     level = CreateLevelOne(sys.argv[1])
     level.visualize_tree_on_map(
-        map_file_path="/home/ash/irvl/test/installations/fetch_related/fetch_ws/src/fetch_gazebo/fetch_gazebo/scripts/2024-07-30_13-33-04/map/000338_map.png"
+        map_file_path="/home/ash//irvl/test/installations/fetch_related/fetch_ws/src/fetch_gazebo/fetch_gazebo/scripts/2024-07-30_13-33-04/map/000338_map.png"
     )
     level.save_tree()
     # level.save_tree_yaml(filepath="tree.yaml")
