@@ -1,0 +1,64 @@
+<launch>
+
+  <arg name="odom_frame_id" default="odom"/>
+  <arg name="base_frame_id" default="base_link"/>
+  <arg name="global_frame_id" default="map"/>
+  <arg name="odom_topic" default="odom" />
+  <arg name="laser_topic" default="base_scan" />
+  <arg name="map_file" default="/home/ash/Downloads/000406_map.yaml"/>
+  
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find fetch_gazebo)/param/costmap_common_params.yaml" command="load" ns="global_costmap">
+      <param name="track_unknown_space" value="true"/>
+    </rosparam>
+    <rosparam file="$(find fetch_gazebo)/param/costmap_common_params.yaml" command="load" ns="local_costmap">
+      <param name="track_unknown_space" value="true"/>
+    </rosparam>
+    <rosparam file="$(find fetch_gazebo)/param/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find fetch_gazebo)/param/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find fetch_gazebo)/param/dwa_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find fetch_gazebo)/param/move_base_params.yaml" command="load" />
+    <rosparam file="$(find fetch_gazebo)/param/global_planner_params.yaml" command="load" />
+    <rosparam file="$(find fetch_gazebo)/param/navfn_global_planner_params.yaml" command="load" />
+
+    <param name="global_costmap/global_frame" value="$(arg global_frame_id)"/>
+    <param name="global_costmap/robot_base_frame" value="$(arg base_frame_id)"/>
+    <param name="local_costmap/global_frame" value="$(arg odom_frame_id)"/>
+    <param name="local_costmap/robot_base_frame" value="$(arg base_frame_id)"/>
+    <param name="DWAPlannerROS/global_frame_id" value="$(arg odom_frame_id)"/>
+
+    <remap from="odom" to="$(arg odom_topic)"/>
+    <remap from="cmd_vel" to="/cmd_vel"/>
+  </node>
+
+  <!-- Joystick node to read joystick inputs -->
+  <node pkg="joy" type="joy_node" name="joy_node" output="screen">
+    <param name="dev" type="string" value="/dev/input/js0"/>
+  </node>
+  <!-- Teleop twist joy node to convert joystick inputs to cmd_vel -->
+  <node pkg="teleop_twist_joy" type="teleop_node" name="teleop_twist_joy" output="screen">
+    <param name="axis_linear" value="1"/>
+    <param name="axis_angular" value="0"/>
+    <param name="scale_linear" value="0.5"/>
+    <param name="scale_angular" value="1.0"/>
+    <param name="enable_button" value="0"/>
+  </node>
+
+  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+    <remap from="scan" to="/base_scan"/>
+  </node>
+
+  <!-- Map server to load a map -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" output="screen"/>
+
+  <!-- AMCL for localization -->
+  <node pkg="amcl" type="amcl" name="amcl" output="screen">
+    <param name="odom_frame_id" value="$(arg odom_frame_id)"/>
+    <param name="base_frame_id" value="$(arg base_frame_id)"/>
+    <param name="global_frame_id" value="$(arg global_frame_id)"/>
+    <param name="laser_scan_topic" value="$(arg laser_topic)"/>
+    <!-- <rosparam file="$(find fetch_gazebo)/param/amcl_params.yaml" command="load" /> -->
+  </node>
+
+</launch>
