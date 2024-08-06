@@ -3,7 +3,12 @@ import os
 import cv2
 import yaml
 from numpy.linalg import norm
-import scipy.ndimage
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+import networkx as nx
+from networkx.readwrite import json_graph
+import json
 
 intrinsics = [[574.0527954101562, 0.0, 319.5],[0.0, 574.0527954101562, 239.5], [0.0, 0.0, 1.0]]
 # intrinsics = [[554.254691191187, 0.0, 320.5],[0.0, 554.254691191187, 240.5], [0.0, 0.0, 1.0]]
@@ -65,30 +70,80 @@ def normalize_depth_image(depth_array, max_depth):
     return depth_image.astype(np.uint8)
 
 def denormalize_depth_image(depth_image, max_depth):
+    
     depth_array = max_depth * (1 - (depth_image / 255))
+    # print(f"max {depth_array.max()}")
     return depth_array.astype(np.float32)
 
 
 def pose_in_map_frame(RT_camera, RT_base, depth_array, segment=None):
     if segment is not None:
-        depth_array = depth_array * segment
+        depth_array = depth_array * (segment/255)
+
+    if depth_array.max() == 0.0:
+        return None
+    else:
+        xyz_array = compute_xyz(depth_array, fx,fy,px,py, depth_array.shape[0], depth_array.shape[1])
+        xyz_array = xyz_array.reshape((-1,3))
+
+        mask = ~(np.all(xyz_array == [0.0, 0.0, 0.0], axis=1))
+        xyz_array = xyz_array[mask]
+
+        xyz_base = np.dot(RT_camera[:3,:3],xyz_array.T).T
+        xyz_base +=RT_camera[:3,3]
+
+        xyz_map = np.dot(RT_base[:3,:3],xyz_base.T).T
+        xyz_map +=RT_base[:3,3]
+        
+        mean_pose = np.mean(xyz_map, axis=0)
+        # print(f"mean pose ; {mean_pose}, robot pose ; {RT_base[0:2,3]} \n")
+
+        return mean_pose.tolist()
+
+def is_nearby_in_map(pose_list, node_pose, threshold=0.5):
+    if len(pose_list) == 0:
+        return pose_list, False
+    pose_array = np.array(pose_list)
+    node_pose_array = np.array([node_pose])
+    # print(f"pose array {pose_array} node pose {node_pose_array}")
+    distances = np.linalg.norm((pose_array[:,0:2]-node_pose_array[:,0:2]), axis=1)
+    # print(f"distance {distances}")
+    # print(f"distance {distances}")
+    if np.any(distances < threshold):
+        # print("not a new object")
+        return pose_list, True
+    else:
+        # print("new node added")
+        pose_list.append(node_pose)
+        # print(f"pose list after {pose_list}")
+        return pose_list, False
     
-    xyz_array = compute_xyz(depth_array, fx,fy,px,py, depth_array.shape[0], depth_array.shape[1])
-    xyz_array = xyz_array.reshape((-1,3))
+def save_graph_json(graph):
+    data_to_save = json_graph.node_link_data(graph)
+    with open("graph.json", "w") as file:
+        json.dump(data_to_save, file, indent=4)
+        file.close()
+    print(f"-=---------------------")
 
-    mask = ~(np.all(xyz_array == [0.0, 0.0, 0.0], axis=1))
-    xyz_array = xyz_array[mask]
+def read_graph_json():
+    with open("graph.json", "r") as file:
+        data = json.load(file)
+        file.close()
+    print(data)
+    graph = json_graph.node_link_graph(data)
+    return graph 
 
-    xyz_base = np.dot(RT_camera[:3,:3],xyz_array.T).T
-    xyz_base +=RT_camera[:3,3]
+def read_and_visualize_graph():
+    graph = read_graph_json()
+    pos = nx.spring_layout(graph)
+    nx.draw(graph, pos, with_labels=True)
+    plt.show()
 
-    xyz_map = np.dot(RT_base[:3,:3],xyz_base.T).T
-    xyz_map +=RT_base[:3,3]
+def visualize_graph(graph):
     
-    mean_pose = np.mean(xyz_map, axis=0)
-    # print(f"mean pose ; {mean_pose}, robot pose ; {RT_base[0:2,3]} \n")
-
-    return mean_pose.tolist()
+    pos = nx.spring_layout(graph)
+    nx.draw(graph, pos, with_labels=True)
+    plt.show()
 
 if __name__=="__main__":
     a=compute_xyz(np.array([[0,0,0],[0,0,0],[0,0,0]]), fx,fy,px,py, 3,3)
