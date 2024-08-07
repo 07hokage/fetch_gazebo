@@ -125,9 +125,9 @@ def pose_in_map_frame(RT_camera, RT_base, depth_array, segment=None):
 
         mean_pose = np.mean(xyz_map, axis=0)
         # print(f"mean pose ; {mean_pose}, robot pose ; {RT_base[0:2,3]} \n")
-        print(f"mean pose b4 {mean_pose}\n")
+        # print(f"mean pose b4 {mean_pose}\n")
         mean_pose = pose_along_line( mean_pose, RT_base)
-        print(f"mean pose after {mean_pose}\n")
+        # print(f"mean pose after {mean_pose}\n")
         return mean_pose.tolist()
 
 
@@ -187,6 +187,16 @@ def read_and_visualize_graph(on_map=False, catgeories=[]):
                 ] = color_palette[catgeories.index(data["category"])]
         display_map_image(map_image, write=True)
 
+def plot_point_on_map(position):
+    map_image = read_map_image("map.png")
+    map_metadata = read_map_metadata("map.yaml")
+    x, y = pose_to_map_pixel(map_metadata, position)
+    map_image[
+        y - 5 // 2 : y + 5 // 2,
+        x - 5 // 2 : x + 5 // 2,
+        :,
+    ] = [0,0,255]
+    display_map_image(map_image, write=False)
 
 def visualize_graph(graph):
     pos = nx.spring_layout(graph)
