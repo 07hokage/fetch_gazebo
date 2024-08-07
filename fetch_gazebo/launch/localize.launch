@@ -45,9 +45,9 @@
     <param name="enable_button" value="0"/>
   </node>
 
-  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
+  <!-- <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
     <remap from="scan" to="/base_scan"/>
-  </node>
+  </node> -->
 
   <!-- Map server to load a map -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" output="screen"/>
