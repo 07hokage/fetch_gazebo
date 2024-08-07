@@ -26,12 +26,12 @@ from utils import (
 
 
 class CreateLevelGraph:
-    def __init__(self, root_dir) -> None:
+    def __init__(self, root_dir, add_root) -> None:
         self.root_dir = root_dir
         self.object_classes = ["table", "chair", "door"]
         self.graph = Graph()
         self.prepare_data()
-        self.create_level()
+        self.create_level(add_root)
 
     def prepare_data(self):
         """
@@ -122,6 +122,6 @@ class CreateLevelGraph:
 
 
 if __name__ == "__main__":
-    level = CreateLevelGraph(sys.argv[1])
+    level = CreateLevelGraph(sys.argv[1], add_root=False)
     save_graph_json(level.graph)
-    read_and_visualize_graph()
+    read_and_visualize_graph(on_map=True, catgeories=["door"])
