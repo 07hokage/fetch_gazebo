@@ -4,7 +4,7 @@ import rospy
 import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from utils import read_graph_json, plot_point_on_map
-
+import time
 def movebase_client():
 
     client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
@@ -25,9 +25,12 @@ def movebase_client():
                     goal.target_pose.header.frame_id = "map"
                     goal.target_pose.header.stamp = rospy.Time.now()
                     goal.target_pose.pose.position.x = target_position[0]
-                    goal.target_pose.pose.orientation.y = target_position[1]
-                    client.send_goal(goal)
+                    goal.target_pose.pose.position.y = target_position[1]
+                    goal.target_pose.pose.orientation.w  =1
+                    client.send_goal_and_wait(goal)
+                    # time.sleep(10)
                     wait = client.wait_for_result()
+                    print(client.get_result())
                     if not wait:
                         rospy.logerr("Action server not available!")
                         rospy.signal_shutdown("Action server not available!")
@@ -50,3 +53,4 @@ if __name__ == '__main__':
             rospy.loginfo("Goal execution done!")
     except rospy.ROSInterruptException:
         rospy.loginfo("Navigation test finished.")
+    # rospy.spin()
