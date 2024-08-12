@@ -126,7 +126,10 @@ def pose_in_map_frame(RT_camera, RT_base, depth_array, segment=None):
         mean_pose = np.mean(xyz_map, axis=0)
         # print(f"mean pose ; {mean_pose}, robot pose ; {RT_base[0:2,3]} \n")
         # print(f"mean pose b4 {mean_pose}\n")
-        mean_pose = pose_along_line( mean_pose, RT_base)
+
+        #TODO: remove this after changing navrosfn params
+        # mean_pose = pose_along_line( mean_pose, RT_base)
+        
         # print(f"mean pose after {mean_pose}\n")
         return mean_pose.tolist()
 
@@ -151,6 +154,10 @@ def is_nearby_in_map(pose_list, node_pose, threshold=0.5):
 
 
 def save_graph_json(graph):
+    '''
+    input graph \n
+    save graph to graph.json
+    '''
     data_to_save = json_graph.node_link_data(graph)
     with open("graph.json", "w") as file:
         json.dump(data_to_save, file, indent=4)
@@ -175,6 +182,7 @@ def read_and_visualize_graph(on_map=False, catgeories=[]):
         nx.draw(graph, pos, with_labels=True)
         plt.show()
     else:
+        # c ncj
         map_image = read_map_image("map.png")
         map_metadata = read_map_metadata("map.yaml")
         for node, data in graph.nodes(data=True):
