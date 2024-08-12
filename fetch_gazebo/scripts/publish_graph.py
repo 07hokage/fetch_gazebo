@@ -10,6 +10,7 @@ class PosePublisher:
     
     
     def publish_poses(self):
+        
         graph = read_graph_json()
         color_palette = [[1,0,0],[0,1,0],[0,0,1]]
         categories=["table", "chair", "door"]
@@ -17,6 +18,7 @@ class PosePublisher:
         for sno,  data in enumerate(graph.nodes(data=True)):
             node, data = data
             pose = data["pose"]
+            robot_pose= data["robot_pose"]
             color = color_palette[categories.index(data["category"])]
             marker = Marker()
             marker.header.frame_id = "map"
@@ -26,7 +28,7 @@ class PosePublisher:
             marker.type = Marker.CUBE
             marker.action = Marker.ADD
             marker.pose.position.x = pose[0]
-            marker.pose.position.y = -pose[1]
+            marker.pose.position.y = pose[1]
             marker.pose.position.z = pose[2]
             marker.scale.x = 0.5
             marker.scale.y = 0.5
