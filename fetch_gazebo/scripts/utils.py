@@ -126,10 +126,7 @@ def pose_in_map_frame(RT_camera, RT_base, depth_array, segment=None):
         mean_pose = np.mean(xyz_map, axis=0)
         # print(f"mean pose ; {mean_pose}, robot pose ; {RT_base[0:2,3]} \n")
         # print(f"mean pose b4 {mean_pose}\n")
-
-        #TODO: remove this after changing navrosfn params
         # mean_pose = pose_along_line( mean_pose, RT_base)
-        
         # print(f"mean pose after {mean_pose}\n")
         return mean_pose.tolist()
 
@@ -216,4 +213,5 @@ if __name__ == "__main__":
     # a=compute_xyz(np.array([[0,0,0],[0,0,0],[0,0,0]]), fx,fy,px,py, 3,3)
     # a=a.reshape((-1,3))
     # print(a)
+    save_graph_json()
     read_and_visualize_graph(on_map=True, catgeories=["table", "chair", "door"])
