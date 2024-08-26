@@ -150,13 +150,14 @@ def is_nearby_in_map(pose_list, node_pose, threshold=0.5):
         return pose_list, False
 
 
-def save_graph_json(graph):
+def save_graph_json(graph, file="graph.json"):
     '''
     input graph \n
     save graph to graph.json
     '''
+    file = file
     data_to_save = json_graph.node_link_data(graph)
-    with open("graph.json", "w") as file:
+    with open(file, "w") as file:
         json.dump(data_to_save, file, indent=4)
         file.close()
     print(f"-=---------------------")
@@ -171,8 +172,11 @@ def read_graph_json():
     return graph
 
 
-def read_and_visualize_graph(on_map=False, catgeories=[]):
-    graph = read_graph_json()
+def read_and_visualize_graph(on_map=False, catgeories=[], graph=None):
+    if graph is None:
+        graph = read_graph_json()
+    else:
+        graph = graph
     color_palette = [[255, 0, 0], [0, 255, 0], [0, 0, 255]]
     if not on_map:
         pos = nx.spring_layout(graph)
