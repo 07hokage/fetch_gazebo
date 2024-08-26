@@ -3,7 +3,8 @@ tsp = nx.approximation.traveling_salesman_problem
 from utils import read_graph_json, read_map_image, read_map_metadata, pose_to_map_pixel, display_map_image, read_and_visualize_graph
 from numpy.linalg import norm
 import time
-# 
+import cv2
+
 # G = nx.cycle_graph(9)
 # print(G)
 # G[4][5]["weight"] = 5  # all other weights are 1
@@ -121,8 +122,9 @@ for node in path:
                     x-10 // 2 : x+10 // 2,
                     :,
                 ] = [0,0,255]
-    display_map_image(map_image, write=True)
-
+    # display_map_image(map_image, write=True)
+    cv2.imshow("Map Image", map_image)
+    cv2.waitKey(1000)
 print(graph_.number_of_nodes())
 
 # path = tsp(graph, cycle=True)
