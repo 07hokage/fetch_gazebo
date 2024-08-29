@@ -32,8 +32,8 @@ class SaveData:
     def save_data(self):
         data_count = 0
         while not rospy.is_shutdown():
-            rgb, depth, RT_camera, RT_laser, RT_robot, robot_velocity, RT_goal, map_data = self.listener.get_data_to_save()
-            np.savez("{}_pose.npz".format(os.path.join(self.pose_dir_name, "{:06d}".format(data_count))), RT_camera=RT_camera, RT_robot=RT_robot, robot_velocity=robot_velocity, RT_goal=RT_goal)
+            rgb, depth, RT_camera, RT_laser, RT_base, robot_velocity, RT_goal, map_data = self.listener.get_data_to_save()
+            np.savez("{}_pose.npz".format(os.path.join(self.pose_dir_name, "{:06d}".format(data_count))), RT_camera=RT_camera, RT_base=RT_base, robot_velocity=robot_velocity, RT_goal=RT_goal)
             cv2.imwrite("{}_color.png".format(os.path.join(self.color_dir_name, "{:06d}".format(data_count))), rgb)
             cv2.imwrite("{}_depth.png".format(os.path.join(self.depth_dir_name, "{:06d}".format(data_count))), depth)
             cv2.imwrite("{}_map.png".format(os.path.join(self.map_dir_name, "{:06d}".format(data_count))), map_data.astype(np.uint8))
@@ -41,5 +41,5 @@ class SaveData:
             data_count += 1
 
 if __name__ == "__main__":
-    saver = SaveData(sys.argv[1])
+    saver = SaveData(int(sys.argv[1]))
     saver.save_data()
