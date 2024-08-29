@@ -124,4 +124,4 @@ class CreateLevelGraph:
 if __name__ == "__main__":
     level = CreateLevelGraph(sys.argv[1], add_root=False)
     save_graph_json(level.graph)
-    read_and_visualize_graph(on_map=True, catgeories=["door"])
+    read_and_visualize_graph(on_map=True, catgeories=["table","chair", "door"])
