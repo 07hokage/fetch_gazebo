@@ -106,6 +106,9 @@ def pose_in_map_frame(RT_camera, RT_base, depth_array, segment=None):
     if segment is not None:
         depth_array = depth_array * (segment / 255)
 
+    #TODO: if depth is not normalized, then we need to remoev nans in the read image 
+    # depth_array[np.isnan(depth_array)] = 0.0
+
     if depth_array.max() == 0.0:
         return None
     else:
@@ -124,10 +127,7 @@ def pose_in_map_frame(RT_camera, RT_base, depth_array, segment=None):
         xyz_map += RT_base[:3, 3]
 
         mean_pose = np.mean(xyz_map, axis=0)
-        # print(f"mean pose ; {mean_pose}, robot pose ; {RT_base[0:2,3]} \n")
-        # print(f"mean pose b4 {mean_pose}\n")
         # mean_pose = pose_along_line( mean_pose, RT_base)
-        # print(f"mean pose after {mean_pose}\n")
         return mean_pose.tolist()
 
 
@@ -136,10 +136,7 @@ def is_nearby_in_map(pose_list, node_pose, threshold=0.5):
         return pose_list, False
     pose_array = np.array(pose_list)
     node_pose_array = np.array([node_pose])
-    # print(f"pose array {pose_array} node pose {node_pose_array}")
     distances = np.linalg.norm((pose_array[:, 0:2] - node_pose_array[:, 0:2]), axis=1)
-    # print(f"distance {distances}")
-    # print(f"distance {distances}")
     if np.any(distances < threshold):
         # print("not a new object")
         return pose_list, True
@@ -172,7 +169,7 @@ def read_graph_json():
     return graph
 
 
-def read_and_visualize_graph(on_map=False, catgeories=[], graph=None):
+def read_and_visualize_graph(map_file_path, map_metadata_filepath, on_map=False, catgeories=[], graph=None):
     if graph is None:
         graph = read_graph_json()
     else:
@@ -184,25 +181,25 @@ def read_and_visualize_graph(on_map=False, catgeories=[], graph=None):
         plt.show()
     else:
         # c ncj
-        map_image = read_map_image("map.png")
-        map_metadata = read_map_metadata("map.yaml")
+        map_image = read_map_image(map_file_path)
+        map_metadata = read_map_metadata(map_metadata_filepath)
         for node, data in graph.nodes(data=True):
             if data["category"] in catgeories:
                 x, y = pose_to_map_pixel(map_metadata, data["pose"])
                 map_image[
-                    y - 5 // 2 : y + 5 // 2,
-                    x - 5 // 2 : x + 5 // 2,
+                    y - 10 // 2 : y + 10 // 2,
+                    x - 10 // 2 : x + 10 // 2,
                     :,
                 ] = color_palette[catgeories.index(data["category"])]
         display_map_image(map_image, write=True)
 
-def plot_point_on_map(position):
-    map_image = read_map_image("map.png")
-    map_metadata = read_map_metadata("map.yaml")
+def plot_point_on_map(map_file_path, map_metadata_filepath, position):
+    map_image = read_map_image(map_file_path)
+    map_metadata = read_map_metadata(map_metadata_filepath)
     x, y = pose_to_map_pixel(map_metadata, position)
     map_image[
-        y - 5 // 2 : y + 5 // 2,
-        x - 5 // 2 : x + 5 // 2,
+        y - 10 // 2 : y + 10 // 2,
+        x - 10 // 2 : x + 10 // 2,
         :,
     ] = [0,0,255]
     display_map_image(map_image, write=False)
