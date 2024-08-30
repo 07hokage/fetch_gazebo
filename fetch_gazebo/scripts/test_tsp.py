@@ -5,11 +5,15 @@ from numpy.linalg import norm
 import time
 import cv2
 
+cv2.namedWindow("map_image", cv2.WINDOW_NORMAL)
+
+cv2.resizeWindow("map_image", (4000, 4000))  
 # G = nx.cycle_graph(9)
 # print(G)
 # G[4][5]["weight"] = 5  # all other weights are 1
 # path = tsp(G, nodes=[3, 6])
 # print(path, "\n")
+
 # Solve TSP using a greedy heuristic
 def tsp_greedy_solution(G):
     nodes = list(G.nodes)
@@ -29,7 +33,7 @@ def tsp_greedy_solution(G):
     return path
 
 graph = read_graph_json()
-read_and_visualize_graph(on_map=True, catgeories=["table", "chair", "door"])
+# read_and_visualize_graph(on_map=True, catgeories=["table", "chair", "door"])
 # add edges betweeen each nodes
 # for id, (node, data) in enumerate(graph.nodes(data=True)):
 #     for id_, (node_, data_) in enumerate(graph.nodes(data=True)):
@@ -82,7 +86,7 @@ for id, (node, data) in enumerate(graph.nodes(data=True)):
         pose1 = data["pose"]
         pose2 = data_["pose"]
         weight=norm((pose1[0] - pose2[0], pose1[1] - pose2[1]))
-        if weight < 10:
+        if weight < 4:
             graph_.remove_node(node_)
             deleted_noodes.append(node_)
             # print("removed node ")
@@ -123,7 +127,8 @@ for node in path:
                     :,
                 ] = [0,0,255]
     # display_map_image(map_image, write=True)
-    cv2.imshow("Map Image", map_image)
+    
+    cv2.imshow("map_image", map_image)
     cv2.waitKey(1000)
 print(graph_.number_of_nodes())
 
