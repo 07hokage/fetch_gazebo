@@ -48,6 +48,13 @@
 
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
     <remap from="scan" to="/base_scan"/>
+    <param name="minimumScore" value="200" />
+    <!-- <param name="linearUpdate" value="0.05" /> -->
+    <!-- <param name="angularUpdate" value="0.05" /> -->
+    <!-- <param name="map_update_interval" value="2" /> -->
+    <!-- <param name="particles" value="80" /> -->
+    <!-- <param name="occ_thresh" value="0.65" /> -->
+
    </node>
 
 </launch>

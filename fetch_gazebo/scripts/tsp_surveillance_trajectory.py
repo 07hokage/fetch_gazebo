@@ -87,4 +87,4 @@ if __name__=="__main__":
             # display_map_image(map_image, write=True)
         
         cv2.imshow("map_image", map_image)
-        cv2.waitKey(1000)
+        cv2.waitKey(500)
