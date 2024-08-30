@@ -40,7 +40,7 @@ def preprocess_trajectory_graph(trajectory_graph):
             pose1 = data["pose"]
             pose2 = data_["pose"]
             weight=norm((pose1[0] - pose2[0], pose1[1] - pose2[1]))
-            if weight < 4:
+            if weight < 2:
                 trajectory_graph_.remove_node(node_)
                 deleted_noodes.append(node_)
                 
