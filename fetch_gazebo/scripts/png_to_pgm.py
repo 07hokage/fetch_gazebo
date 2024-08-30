@@ -8,7 +8,7 @@ img = Image.open("map.png")
 # Convert the image to grayscale
 img_gray = img.convert("L")
 # img_gray = img_gray.transpose(Image.FLIP_TOP_BOTTOM)
-img_gray = img_gray.rotate(-45, expand=True)
+img_gray = img_gray.rotate(180, expand=True)
 img_gray = img_gray.transpose(Image.FLIP_LEFT_RIGHT)
 # Convert the grayscale image to a NumPy array
 img_array = np.array(img_gray)
@@ -27,4 +27,4 @@ img_array[i2] = 0
 pgm_image = Image.fromarray(img_array)
 print("save")
 # Save the transformed image as a PGM file
-pgm_image.save("map.pgm")
+pgm_image.save("map2.pgm")
