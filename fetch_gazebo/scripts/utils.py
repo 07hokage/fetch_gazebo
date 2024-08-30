@@ -160,8 +160,8 @@ def save_graph_json(graph, file="graph.json"):
     print(f"-=---------------------")
 
 
-def read_graph_json():
-    with open("graph.json", "r") as file:
+def read_graph_json(file="graph.json"):
+    with open(file, "r") as file:
         data = json.load(file)
         file.close()
     # print(data)
