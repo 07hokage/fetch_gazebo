@@ -39,4 +39,4 @@ if __name__=="__main__":
     rospy.init_node("set_head")
     head_action = PointHeadClient()
     for _ in range(5):
-        head_action.look_at(0.36, 0, 0.75, "base_link")
+        head_action.look_at(0.6, 0, 0.75, "base_link")
