@@ -3,6 +3,7 @@ import networkx as nx
 from numpy.linalg import norm
 from utils import read_graph_json, save_graph_json, read_map_image, read_map_metadata, pose_to_map_pixel
 import cv2
+import numpy as np
 
 def tsp_greedy_solution(G):
     nodes = sorted(list(G.nodes))
@@ -55,25 +56,35 @@ def preprocess_trajectory_graph(trajectory_graph):
 
 
 if __name__=="__main__":
+    # import rospy
+    # rospy.init_node('movebase_client_py')
+    # from navigate import Navigate
+    # nav = Navigate()
     map_image = read_map_image("map.png")
     map_metadata = read_map_metadata("map.yaml")
     robot_trajectory = read_graph_json(sys.argv[1])
     pruned_trajectory = preprocess_trajectory_graph(robot_trajectory)
     surveillance_path = tsp_greedy_solution(pruned_trajectory)
     surveillance_path  = sorted(surveillance_path)
-
+    surveillance_traj = []
+    for node in surveillance_path:
+        pose = pruned_trajectory.nodes[node]["pose"]
+        surveillance_traj.append(pose)
+    
+    np.savez("surveillance_traj", traj=np.array(surveillance_traj))
     cv2.namedWindow("map_image", cv2.WINDOW_NORMAL)
 
     cv2.resizeWindow("map_image", (4000, 4000)) 
     for node in surveillance_path:
         pose = pruned_trajectory.nodes[node]["pose"]
+        # nav.navigate_to(pose)
         x,y = pose_to_map_pixel(map_metadata, pose)
         map_image[
                     y-10// 2 :y+10// 2,
                         x-10 // 2 : x+10 // 2,
                         :,
                     ] = [0,0,255]
-        # display_map_image(map_image, write=True)
+            # display_map_image(map_image, write=True)
         
-    cv2.imshow("map_image", map_image)
-    cv2.waitKey(0)
+        cv2.imshow("map_image", map_image)
+        cv2.waitKey(1000)
