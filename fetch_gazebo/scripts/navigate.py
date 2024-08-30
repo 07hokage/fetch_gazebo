@@ -100,3 +100,4 @@ if __name__=="__main__":
         surveillance_traj = traj_file["traj"]  
     print(surveillance_traj)
     nav.track_trajectory(waypoints=surveillance_traj)
+    rospy.spin()
