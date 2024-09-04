@@ -65,17 +65,17 @@ if __name__=="__main__":
     robot_trajectory = read_graph_json(sys.argv[1])
     pruned_trajectory = preprocess_trajectory_graph(robot_trajectory)
     surveillance_path = tsp_greedy_solution(pruned_trajectory)
-    surveillance_path  = sorted(surveillance_path)
+    # surveillance_path  = sorted(surveillance_path)
     surveillance_traj = []
     for node in surveillance_path:
         pose = pruned_trajectory.nodes[node]["pose"]
         surveillance_traj.append(pose)
-    
     np.savez("surveillance_traj", traj=np.array(surveillance_traj))
     cv2.namedWindow("map_image", cv2.WINDOW_NORMAL)
 
     cv2.resizeWindow("map_image", (4000, 4000)) 
-    for node in surveillance_path:
+    for i, node in enumerate(surveillance_path):
+        print(f"i {i}")
         pose = pruned_trajectory.nodes[node]["pose"]
         # nav.navigate_to(pose)
         x,y = pose_to_map_pixel(map_metadata, pose)
@@ -84,6 +84,12 @@ if __name__=="__main__":
                         x-10 // 2 : x+10 // 2,
                         :,
                     ] = [0,0,255]
+        if i == 11:
+            map_image[
+                    y-10// 2 :y+10// 2,
+                        x-10 // 2 : x+10 // 2,
+                        :,
+                    ] = [0,255,0]
             # display_map_image(map_image, write=True)
         
         cv2.imshow("map_image", map_image)
