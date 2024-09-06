@@ -40,7 +40,7 @@ def preprocess_trajectory_graph(trajectory_graph):
             pose1 = data["pose"]
             pose2 = data_["pose"]
             weight=norm((pose1[0] - pose2[0], pose1[1] - pose2[1]))
-            if weight < 2:
+            if weight < 3:
                 trajectory_graph_.remove_node(node_)
                 deleted_noodes.append(node_)
                 
@@ -84,13 +84,13 @@ if __name__=="__main__":
                         x-10 // 2 : x+10 // 2,
                         :,
                     ] = [0,0,255]
-        if i == 11:
-            map_image[
-                    y-10// 2 :y+10// 2,
-                        x-10 // 2 : x+10 // 2,
-                        :,
-                    ] = [0,255,0]
-            # display_map_image(map_image, write=True)
+        # if i == 11:
+        #     map_image[
+        #             y-10// 2 :y+10// 2,
+        #                 x-10 // 2 : x+10 // 2,
+        #                 :,
+        #             ] = [0,255,0]
+        #     # display_map_image(map_image, write=True)
         
         cv2.imshow("map_image", map_image)
-        cv2.waitKey(500)
+        cv2.waitKey(100)
