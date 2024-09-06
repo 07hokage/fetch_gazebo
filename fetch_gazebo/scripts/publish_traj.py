@@ -28,9 +28,9 @@ class PosePublisher:
             marker.pose.position.x = data[0]
             marker.pose.position.y = data[1]
             marker.pose.position.z = data[2]
-            marker.scale.x = 0.5
-            marker.scale.y = 0.5
-            marker.scale.z = 2
+            marker.scale.x = 0.3
+            marker.scale.y = 0.3
+            marker.scale.z = 0.5
             marker.color.a = 1.0
             marker.color.b = color[0]
             marker.color.g = color[1]
