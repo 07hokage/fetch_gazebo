@@ -92,7 +92,8 @@ class CreateLevelGraph:
             self.graph.add_node("door")
 
         self.pose_list = {"table":[], "chair":[], "door":[]}
-
+        self.threshold = {"table": 1.3, "chair":0.5
+                          , "door": 1}
         for directory in self.segment_folders:
             for class_directory in os.listdir(join(self.segments_dir, directory)):
                 for sub_id, mask_image_name in enumerate(os.listdir(
@@ -104,7 +105,7 @@ class CreateLevelGraph:
                     if pose is None:
                         continue
                     self.pose_list[class_directory], _is_nearby = is_nearby_in_map(
-                        self.pose_list[class_directory], pose, threshold=1
+                        self.pose_list[class_directory], pose, threshold=self.threshold[class_directory]
                     )
                     if _is_nearby:
                         continue
