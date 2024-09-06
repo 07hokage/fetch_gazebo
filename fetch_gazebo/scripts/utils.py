@@ -101,6 +101,29 @@ def denormalize_depth_image(depth_image, max_depth):
     # print(f"max {depth_array.max()}")
     return depth_array.astype(np.float32)
 
+def get_fov_points_in_baselink(depth_array, RT_camera):
+        xyz_array = compute_xyz(
+            depth_array, fx, fy, px, py, depth_array.shape[0], depth_array.shape[1]
+        )
+        xyz_array = xyz_array.reshape((-1, 3))
+
+        mask = ~(np.all(xyz_array == [0.0, 0.0, 0.0], axis=1))
+        xyz_array = xyz_array[mask]
+
+        xyz_base = np.dot(RT_camera[:3, :3], xyz_array.T).T
+        xyz_base += RT_camera[:3, 3]
+
+        min_x = np.min(xyz_base[:,0])
+        max_x = np.max(xyz_base[:,0])
+        min_y = np.min(xyz_base[:,1])
+        max_y = np.max(xyz_base[:,1])
+
+        return [[0,0,0],[max_x,min_y,0], [max_x, max_y,0]]
+
+
+
+
+    
 
 def pose_in_map_frame(RT_camera, RT_base, depth_array, segment=None):
     if segment is not None:
@@ -214,5 +237,17 @@ if __name__ == "__main__":
     # a=compute_xyz(np.array([[0,0,0],[0,0,0],[0,0,0]]), fx,fy,px,py, 3,3)
     # a=a.reshape((-1,3))
     # print(a)
-    save_graph_json()
-    read_and_visualize_graph(on_map=True, catgeories=["table", "chair", "door"])
+    g = read_graph_json("graph_ecss4.json")
+    rpose = [3,2,0]
+    import time
+    t=time.time()
+    for i in range(100):
+        for node, data in g.nodes(data=True):
+            if np.linalg.norm(np.array(data["pose"])-np.array(rpose)) < 3:
+                continue
+            else:
+                continue
+    endt = time.time()-t
+    print(endt)
+    # save_graph_json()
+    # read_and_visualize_graph(on_map=True, catgeories=["table", "chair", "door"])
