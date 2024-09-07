@@ -13,7 +13,7 @@
       <param name="track_unknown_space" value="true"/>
     </rosparam>
     <rosparam file="$(find fetch_gazebo)/param/costmap_common_params.yaml" command="load" ns="local_costmap">
-      <param name="track_unknown_space" value="true"/>
+      <param name="track_unknown_space" value="false"/>
     </rosparam>
     <rosparam file="$(find fetch_gazebo)/param/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find fetch_gazebo)/param/global_costmap_params.yaml" command="load" />
