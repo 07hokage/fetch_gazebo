@@ -6,6 +6,7 @@ import tf
 from tf.transformations import quaternion_from_euler
 from utils import read_graph_json
 import numpy as np
+from std_msgs.msg import Int32
 
 class Navigate:
     def __init__(self) -> None:
@@ -16,6 +17,11 @@ class Navigate:
         self.tf_listener = tf.TransformListener()
         self.goal = MoveBaseGoal()
         self.base_position = [0,0,0]
+        self.pause = 0
+        rospy.Subscriber("/yes_no", Int32, self.pause_callback)
+    
+    def pause_callback(self, data):
+        self.pause = data.data
 
     def clear_goal(self):
         self.goal = MoveBaseGoal()
@@ -71,7 +77,10 @@ class Navigate:
 
     def track_trajectory(self, waypoints=[]):
         for waypoint in waypoints:
-            self.navigate_to(waypoint)
+                if self.pause == 0:
+                    self.navigate_to(waypoint)
+                else:
+                    input("conitue?")
 
     def navigate_to_object_class(self, graph_file, _class="door", nearest=False):
         graph = read_graph_json(file=graph_file)
